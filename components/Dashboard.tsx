@@ -2,6 +2,7 @@
 
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
+import { Doc } from "../convex/_generated/dataModel";
 
 export default function Dashboard() {
   const agents = useQuery(api.agents.getAllAgents);
@@ -18,7 +19,7 @@ export default function Dashboard() {
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-2 text-zinc-200">Agent Roster</h3>
         <div className="space-y-2">
-          {agents?.map((agent) => (
+          {agents?.map((agent: Doc<"gameAgents">) => (
             <div key={agent._id} className="bg-zinc-800 rounded p-2 flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <div 
@@ -42,7 +43,7 @@ export default function Dashboard() {
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-2 text-zinc-200">Leaderboard</h3>
         <div className="space-y-1">
-          {leaderboard?.slice(0, 5).map((agent, index) => (
+          {leaderboard?.slice(0, 5).map((agent: Doc<"gameAgents">, index: number) => (
             <div key={agent._id} className="bg-zinc-800 rounded p-2 flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-zinc-500">#{index + 1}</span>
@@ -58,7 +59,7 @@ export default function Dashboard() {
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-2 text-zinc-200">Mission Board</h3>
         <div className="space-y-2">
-          {missions?.slice(0, 3).map((mission) => (
+          {missions?.slice(0, 3).map((mission: Doc<"gameMissions">) => (
             <div key={mission._id} className="bg-zinc-800 rounded p-2">
               <div className="text-sm font-medium text-zinc-100 mb-1">{mission.title}</div>
               <div className="text-xs text-zinc-400 mb-1">{mission.description}</div>
@@ -75,7 +76,7 @@ export default function Dashboard() {
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-2 text-zinc-200">Crews</h3>
         <div className="space-y-2">
-          {crews?.slice(0, 3).map((crew) => (
+          {crews?.slice(0, 3).map((crew: any) => (
             <div key={crew._id} className="bg-zinc-800 rounded p-2">
               <div className="text-sm font-medium text-zinc-100">{crew.name}</div>
               <div className="text-xs text-zinc-400">
@@ -96,7 +97,7 @@ export default function Dashboard() {
       <div>
         <h3 className="text-lg font-semibold mb-2 text-zinc-200">Activity Feed</h3>
         <div className="space-y-1 max-h-40 overflow-y-auto">
-          {activity?.map((item, index) => (
+          {activity?.map((item: Doc<"gameActivity">, index: number) => (
             <div key={index} className="text-xs text-zinc-400 bg-zinc-800 rounded p-2">
               <div className="mb-1">{item.message}</div>
               <div className="text-zinc-500">

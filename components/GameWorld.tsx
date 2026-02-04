@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import * as PIXI from 'pixi.js';
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
+import { Doc } from "../convex/_generated/dataModel";
 
 interface GameWorldProps {
   className?: string;
@@ -58,7 +59,7 @@ export default function GameWorld({ className }: GameWorldProps) {
     app.stage.addChild(boundary);
 
     // Draw world locations
-    worldLocations.forEach((location) => {
+    worldLocations.forEach((location: Doc<"gameWorld">) => {
       const graphics = new PIXI.Graphics();
       
       // Set color based on type
@@ -90,7 +91,7 @@ export default function GameWorld({ className }: GameWorldProps) {
     });
 
     // Draw agents
-    agents.forEach((agent) => {
+    agents.forEach((agent: Doc<"gameAgents">) => {
       const agentGraphics = new PIXI.Graphics();
       
       // Agent body
