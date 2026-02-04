@@ -83,7 +83,7 @@ export default function Dashboard() {
                 {crew.memberCount} members | {crew.totalCoins}💰 total
               </div>
               <div className="text-xs text-zinc-500 mt-1">
-                Led by: {crew.members?.find(m => m._id === crew.leaderId)?.name || 'Unknown'}
+                Led by: {crew.members?.find((m: Doc<"gameAgents">) => m._id === crew.leaderId)?.name || 'Unknown'}
               </div>
             </div>
           ))}
