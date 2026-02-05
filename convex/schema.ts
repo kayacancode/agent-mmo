@@ -20,6 +20,13 @@ export default defineSchema({
     personality: v.optional(v.string()), // "KayaCan", "Friday", "Ledger", "Sage"
     energy: v.optional(v.number()), // 0-100, drains over time, recharged at Agent Café
     lastEnergyUpdate: v.optional(v.number()),
+    // GTA-style wanted system
+    wantedLevel: v.optional(v.number()), // 0-5 stars
+    lastWantedUpdate: v.optional(v.number()),
+    isBeingChased: v.optional(v.boolean()),
+    // Vehicle system
+    vehicleId: v.optional(v.id("gameVehicles")),
+    isInVehicle: v.optional(v.boolean()),
   }),
 
   // Available missions in the game
@@ -101,5 +108,48 @@ export default defineSchema({
     startedAt: v.number(),
     endsAt: v.number(),
     data: v.optional(v.object({})), // additional event data
+  }),
+
+  // Vehicles in the game world
+  gameVehicles: defineTable({
+    type: v.union(v.literal("sedan"), v.literal("sports"), v.literal("van")),
+    x: v.number(),
+    y: v.number(),
+    color: v.string(),
+    speed: v.number(), // speed multiplier
+    isAvailable: v.boolean(),
+    ownerId: v.optional(v.id("gameAgents")),
+    spawnLocation: v.string(), // district where it spawns
+  }),
+
+  // Security NPCs that chase wanted agents
+  gameSecurity: defineTable({
+    x: v.number(),
+    y: v.number(),
+    targetAgentId: v.optional(v.id("gameAgents")),
+    targetX: v.optional(v.number()),
+    targetY: v.optional(v.number()),
+    isChasing: v.boolean(),
+    speed: v.number(),
+    spawnedAt: v.number(),
+    despawnAt: v.number(),
+  }),
+
+  // Heist missions (multi-agent coordinated)
+  gameHeists: defineTable({
+    title: v.string(),
+    description: v.string(),
+    district: v.string(),
+    requiredAgents: v.number(),
+    plannedBy: v.optional(v.id("gameCrews")),
+    participantIds: v.optional(v.array(v.id("gameAgents"))),
+    status: v.union(v.literal("planning"), v.literal("active"), v.literal("completed"), v.literal("failed")),
+    targetX: v.number(),
+    targetY: v.number(),
+    reward: v.number(),
+    heatGenerated: v.number(),
+    createdAt: v.number(),
+    startsAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
   }),
 });

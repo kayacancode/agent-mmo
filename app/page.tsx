@@ -52,7 +52,7 @@ export default function Home() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-zinc-100">AI Agent MMO</h1>
-            <p className="text-zinc-400">The Workshop District</p>
+            <p className="text-zinc-400">Grand Theft AI - Five Districts of Chaos</p>
           </div>
           <div className="flex space-x-2">
             <button
@@ -76,8 +76,8 @@ export default function Home() {
       {/* Main Game Layout */}
       <div className="flex">
         {/* Game World */}
-        <div className="flex-1 p-6 flex items-center justify-center">
-          <GameWorld />
+        <div className="flex-1 p-4">
+          <GameWorld className="mx-auto" />
         </div>
         
         {/* Dashboard */}

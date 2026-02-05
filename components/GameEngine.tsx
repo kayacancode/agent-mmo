@@ -12,6 +12,9 @@ export default function GameEngine() {
   const handleCrewFormation = useMutation(api.agentAI.handleCrewFormation);
   const checkDialogueOpportunities = useMutation(api.dialogue.checkDialogueOpportunities);
   const cleanupExpiredDialogue = useMutation(api.dialogue.cleanupExpiredDialogue);
+  const updateWantedSystem = useMutation(api.wanted.updateWantedSystem);
+  const updateSecurity = useMutation(api.wanted.updateSecurity);
+  const updateVehicles = useMutation(api.vehicles.updateVehicles);
 
   useEffect(() => {
     // Movement and energy update loop - every 100ms for smooth movement
@@ -41,12 +44,30 @@ export default function GameEngine() {
       cleanupExpiredDialogue().catch(console.error);
     }, 10000);
 
+    // Wanted system - every 5 seconds
+    const wantedInterval = setInterval(() => {
+      updateWantedSystem().catch(console.error);
+    }, 5000);
+
+    // Security movement - every 200ms for smooth chase
+    const securityInterval = setInterval(() => {
+      updateSecurity().catch(console.error);
+    }, 200);
+
+    // Vehicle updates - every 1 second
+    const vehicleInterval = setInterval(() => {
+      updateVehicles().catch(console.error);
+    }, 1000);
+
     return () => {
       clearInterval(movementInterval);
       clearInterval(energyInterval);
       clearInterval(missionInterval);
       clearInterval(socialInterval);
       clearInterval(cleanupInterval);
+      clearInterval(wantedInterval);
+      clearInterval(securityInterval);
+      clearInterval(vehicleInterval);
     };
   }, [
     updateAgentMovement,
@@ -55,7 +76,10 @@ export default function GameEngine() {
     autoCompleteMissions,
     handleCrewFormation,
     checkDialogueOpportunities,
-    cleanupExpiredDialogue
+    cleanupExpiredDialogue,
+    updateWantedSystem,
+    updateSecurity,
+    updateVehicles
   ]);
 
   // This component doesn't render anything, it just runs the game logic
