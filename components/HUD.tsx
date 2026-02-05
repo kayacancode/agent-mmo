@@ -60,7 +60,8 @@ export default function HUD({ selectedAgent, onAgentSelect, cameraX, cameraY, wo
     if (!minimapAppRef.current || !worldLocations || !agents) return;
 
     const app = minimapAppRef.current;
-    app.stage.removeChildren();
+    try {
+      app.stage.removeChildren();
 
     // Minimap scale: 2500x2500 world -> 200x200 minimap
     const scale = 200 / 2500;
@@ -120,11 +121,15 @@ export default function HUD({ selectedAgent, onAgentSelect, cameraX, cameraY, wo
     );
     viewport.stroke({ width: 2, color: '#ffffff', alpha: 0.8 });
     app.stage.addChild(viewport);
+    
+    } catch (error) {
+      console.error("Error updating minimap:", error);
+    }
 
   }, [worldLocations, agents, selectedAgent, cameraX, cameraY, worldZoom]);
 
   // Calculate total money across all agents
-  const totalMoney = agents?.reduce((sum, agent) => sum + agent.coins, 0) || 0;
+  const totalMoney = agents?.reduce((sum, agent) => sum + (agent.coins || 0), 0) || 0;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-50">

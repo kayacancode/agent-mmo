@@ -56,9 +56,9 @@ export default function GameWorld({ className }: { className?: string }) {
         if (destroyed || !canvasRef.current) return;
         canvasRef.current.appendChild(app.canvas);
 
-      const world = new PIXI.Container();
-      app.stage.addChild(world);
-      worldContainerRef.current = world;
+        const world = new PIXI.Container();
+        app.stage.addChild(world);
+        worldContainerRef.current = world;
 
       // Drag handling
       let dragging = false;
@@ -88,11 +88,11 @@ export default function GameWorld({ className }: { className?: string }) {
       app.canvas.addEventListener('pointerup', () => { dragging = false; });
       app.canvas.addEventListener('pointerleave', () => { dragging = false; });
 
-      // Zoom
-      app.canvas.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        setZoom(prev => Math.max(0.15, Math.min(2, prev + (e.deltaY > 0 ? -0.05 : 0.05))));
-      }, { passive: false });
+        // Zoom
+        app.canvas.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          setZoom(prev => Math.max(0.15, Math.min(2, prev + (e.deltaY > 0 ? -0.05 : 0.05))));
+        }, { passive: false });
       } catch (e) {
         console.error('GameWorld init error:', e);
       }
@@ -130,7 +130,9 @@ export default function GameWorld({ className }: { className?: string }) {
   useEffect(() => {
     const world = worldContainerRef.current;
     if (!world || !worldLocations || !agents) return;
-    world.removeChildren();
+    
+    try {
+      world.removeChildren();
 
     // World boundary
     const boundary = new PIXI.Graphics();
@@ -320,6 +322,10 @@ export default function GameWorld({ className }: { className?: string }) {
       textObj.y = d.y - 65 - bh / 2;
       world.addChild(textObj);
     });
+    
+    } catch (error) {
+      console.error("Error rendering game world:", error);
+    }
 
   }, [worldLocations, agents, selectedAgent, security, vehicles, activeDialogue]);
 
