@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import { 
   PersonalityType, 
@@ -249,7 +250,7 @@ export const intelligentMissionAssignment = mutation({
           // Generate competitive dialogue for losers
           for (const competitor of allCompetitors) {
             if (competitor._id !== winner._id && Math.random() < 0.3) {
-              await ctx.runMutation(ctx.mutation("dialogue:generateContextualDialogue"), {
+              await ctx.runMutation(internal.dialogue.generateContextualDialogue, {
                 agentId: competitor._id,
                 context: "competition",
                 targetAgentId: winner._id,
@@ -262,7 +263,7 @@ export const intelligentMissionAssignment = mutation({
           await ctx.db.patch(winner._id, { currentMission: chosenMission._id });
 
           // Generate dialogue for mission start
-          await ctx.runMutation(ctx.mutation("dialogue:generateContextualDialogue"), {
+          await ctx.runMutation(internal.dialogue.generateContextualDialogue, {
             agentId: winner._id,
             context: "mission_start",
             missionData: {
@@ -281,7 +282,7 @@ export const intelligentMissionAssignment = mutation({
           await ctx.db.patch(chosenMission._id, { assignedTo: agent._id });
           await ctx.db.patch(agent._id, { currentMission: chosenMission._id });
 
-          await ctx.runMutation(ctx.mutation("dialogue:generateContextualDialogue"), {
+          await ctx.runMutation(internal.dialogue.generateContextualDialogue, {
             agentId: agent._id,
             context: "mission_start",
             missionData: {
@@ -343,7 +344,7 @@ export const autoCompleteMissions = mutation({
           });
 
           // Generate completion dialogue
-          await ctx.runMutation(ctx.mutation("dialogue:generateContextualDialogue"), {
+          await ctx.runMutation(internal.dialogue.generateContextualDialogue, {
             agentId: agent._id,
             context: "mission_complete",
           });
@@ -373,7 +374,7 @@ export const autoCompleteMissions = mutation({
             currentMission: undefined,
           });
 
-          await ctx.runMutation(ctx.mutation("dialogue:generateContextualDialogue"), {
+          await ctx.runMutation(internal.dialogue.generateContextualDialogue, {
             agentId: agent._id,
             context: "mission_complete",
           });
@@ -443,7 +444,7 @@ export const handleCrewFormation = mutation({
           await ctx.db.patch(targetAgent._id, { crewId });
 
           // Generate dialogue
-          await ctx.runMutation(ctx.mutation("dialogue:generateContextualDialogue"), {
+          await ctx.runMutation(internal.dialogue.generateContextualDialogue, {
             agentId: ledger._id,
             context: "crew_invite",
             targetAgentId: targetAgent._id,
@@ -462,7 +463,7 @@ export const handleCrewFormation = mutation({
         } else {
           // Target declined
           if (Math.random() < 0.5) {
-            await ctx.runMutation(ctx.mutation("dialogue:generateContextualDialogue"), {
+            await ctx.runMutation(internal.dialogue.generateContextualDialogue, {
               agentId: targetAgent._id,
               context: "crew_decline",
               targetAgentId: ledger._id,

@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { getRandomDialogue, PersonalityType } from "./personality";
 
 // Create a dialogue bubble
@@ -154,7 +155,7 @@ export const generateContextualDialogue = mutation({
     }
 
     // Add the dialogue bubble
-    return await ctx.runMutation(ctx.mutation("dialogue:addDialogue"), {
+    return await ctx.runMutation(internal.dialogue.addDialogue, {
       agentId: args.agentId,
       message,
       context,
@@ -180,7 +181,8 @@ export const checkDialogueOpportunities = mutation({
       const agent = agents[i];
       
       // Check for low energy dialogue
-      if (agent.energy < 30) {
+      const currentEnergy = agent.energy ?? 100;
+      if (currentEnergy < 30) {
         // Only speak about energy occasionally to avoid spam
         const shouldSpeak = Math.random() < 0.1; // 10% chance per check
         if (shouldSpeak) {
@@ -216,7 +218,7 @@ export const checkDialogueOpportunities = mutation({
     const processCount = Math.min(opportunities.length, 2);
     for (let i = 0; i < processCount; i++) {
       const opportunity = opportunities[i];
-      await ctx.runMutation(ctx.mutation("dialogue:generateContextualDialogue"), {
+      await ctx.runMutation(internal.dialogue.generateContextualDialogue, {
         agentId: opportunity.agentId as any,
         context: opportunity.context,
         targetAgentId: opportunity.targetAgentId as any,
