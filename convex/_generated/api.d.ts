@@ -11,8 +11,10 @@
 import type * as agentAI from "../agentAI.js";
 import type * as agents from "../agents.js";
 import type * as crews from "../crews.js";
+import type * as dialogue from "../dialogue.js";
 import type * as init from "../init.js";
 import type * as missions from "../missions.js";
+import type * as personality from "../personality.js";
 import type * as world from "../world.js";
 
 import type {
@@ -25,8 +27,10 @@ declare const fullApi: ApiFromModules<{
   agentAI: typeof agentAI;
   agents: typeof agents;
   crews: typeof crews;
+  dialogue: typeof dialogue;
   init: typeof init;
   missions: typeof missions;
+  personality: typeof personality;
   world: typeof world;
 }>;
 

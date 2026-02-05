@@ -5,6 +5,7 @@ import * as PIXI from 'pixi.js';
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Doc } from "../convex/_generated/dataModel";
+import DialogueBubble from "./DialogueBubble";
 
 interface GameWorldProps {
   className?: string;
@@ -16,6 +17,7 @@ export default function GameWorld({ className }: GameWorldProps) {
   
   const agents = useQuery(api.agents.getAllAgents);
   const worldLocations = useQuery(api.world.getWorldLocations);
+  const activeDialogue = useQuery(api.dialogue.getActiveDialogue);
   
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -92,14 +94,37 @@ export default function GameWorld({ className }: GameWorldProps) {
 
     // Draw agents
     agents.forEach((agent: Doc<"gameAgents">) => {
-      const agentGraphics = new PIXI.Graphics();
-      
       // Agent body
+      const agentGraphics = new PIXI.Graphics();
       agentGraphics.circle(agent.x, agent.y, 8);
       agentGraphics.fill(agent.avatarColor);
       agentGraphics.stroke({ width: 2, color: '#ffffff', alpha: 0.8 });
-      
       app.stage.addChild(agentGraphics);
+
+      // Energy bar above agent
+      if (agent.energy !== undefined) {
+        const energyBarWidth = 16;
+        const energyBarHeight = 3;
+        const energyPercent = agent.energy / 100;
+        
+        // Background bar
+        const energyBg = new PIXI.Graphics();
+        energyBg.rect(agent.x - energyBarWidth / 2, agent.y - 35, energyBarWidth, energyBarHeight);
+        energyBg.fill('#374151');
+        app.stage.addChild(energyBg);
+        
+        // Energy fill
+        const energyFill = new PIXI.Graphics();
+        energyFill.rect(agent.x - energyBarWidth / 2, agent.y - 35, energyBarWidth * energyPercent, energyBarHeight);
+        
+        // Color based on energy level
+        let energyColor = '#10b981'; // Green
+        if (agent.energy < 50) energyColor = '#f59e0b'; // Yellow
+        if (agent.energy < 25) energyColor = '#ef4444'; // Red
+        
+        energyFill.fill(energyColor);
+        app.stage.addChild(energyFill);
+      }
 
       // Agent name
       const nameText = new PIXI.Text({
@@ -113,7 +138,7 @@ export default function GameWorld({ className }: GameWorldProps) {
       });
       nameText.anchor.set(0.5);
       nameText.x = agent.x;
-      nameText.y = agent.y - 20;
+      nameText.y = agent.y - 25;
       app.stage.addChild(nameText);
 
       // Movement indicator
@@ -124,11 +149,11 @@ export default function GameWorld({ className }: GameWorldProps) {
         targetIndicator.alpha = 0.5;
         app.stage.addChild(targetIndicator);
 
-        // Movement line
+        // Movement line with trail effect
         const line = new PIXI.Graphics();
         line.moveTo(agent.x, agent.y);
         line.lineTo(agent.targetX, agent.targetY);
-        line.stroke({ width: 1, color: agent.avatarColor, alpha: 0.6 });
+        line.stroke({ width: 2, color: agent.avatarColor, alpha: 0.4 });
         app.stage.addChild(line);
       }
     });
@@ -142,6 +167,19 @@ export default function GameWorld({ className }: GameWorldProps) {
         className="border border-zinc-700 rounded-lg overflow-hidden"
         style={{ width: '500px', height: '500px' }}
       />
+      
+      {/* Dialogue bubbles overlay */}
+      {activeDialogue?.map((dialogue) => (
+        <DialogueBubble
+          key={dialogue._id}
+          message={dialogue.message}
+          x={dialogue.x}
+          y={dialogue.y}
+          agentName={dialogue.agentName}
+          duration={dialogue.expiresAt - Date.now()}
+        />
+      ))}
+      
       <div className="absolute top-2 left-2 bg-black/50 rounded px-2 py-1">
         <h3 className="text-sm font-semibold text-zinc-100">The Workshop</h3>
         <p className="text-xs text-zinc-400">{agents?.length || 0} agents online</p>

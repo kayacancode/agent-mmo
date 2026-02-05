@@ -14,11 +14,17 @@ export const createAgent = mutation({
   args: {
     name: v.string(),
     avatarColor: v.string(),
+    personality: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Random spawn position in "The Workshop" district
     const spawnX = 100 + Math.random() * 200;
     const spawnY = 100 + Math.random() * 200;
+
+    // Assign personality (defaults to the agent's name if it matches)
+    const validPersonalities = ["KayaCan", "Friday", "Ledger", "Sage"];
+    const personality = args.personality || 
+      (validPersonalities.includes(args.name) ? args.name : "Friday");
 
     const agentId = await ctx.db.insert("gameAgents", {
       name: args.name,
@@ -30,6 +36,9 @@ export const createAgent = mutation({
       reputation: 0,
       isOnline: true,
       lastSeen: Date.now(),
+      personality,
+      energy: 100, // Start with full energy
+      lastEnergyUpdate: Date.now(),
     });
 
     // Add activity log
@@ -97,5 +106,31 @@ export const updateAgentStats = mutation({
     if (args.reputation !== undefined) updates.reputation = agent.reputation + args.reputation;
 
     await ctx.db.patch(args.agentId, updates);
+  },
+});
+
+// Migration: Add personality and energy to existing agents
+export const migrateAgentsToNewSchema = mutation({
+  handler: async (ctx) => {
+    const agents = await ctx.db.query("gameAgents").collect();
+    const now = Date.now();
+    
+    for (const agent of agents) {
+      // Check if agent already has the new fields
+      if (!agent.personality || agent.energy === undefined) {
+        const validPersonalities = ["KayaCan", "Friday", "Ledger", "Sage"];
+        const personality = validPersonalities.includes(agent.name) 
+          ? agent.name 
+          : "Friday"; // Default to Friday
+        
+        await ctx.db.patch(agent._id, {
+          personality,
+          energy: 100,
+          lastEnergyUpdate: now,
+        });
+      }
+    }
+    
+    return { message: "Agents migrated successfully" };
   },
 });

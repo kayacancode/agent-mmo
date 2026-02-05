@@ -17,6 +17,9 @@ export default defineSchema({
     currentMission: v.optional(v.id("gameMissions")),
     isOnline: v.boolean(),
     lastSeen: v.number(),
+    personality: v.optional(v.string()), // "KayaCan", "Friday", "Ledger", "Sage"
+    energy: v.optional(v.number()), // 0-100, drains over time, recharged at Agent Café
+    lastEnergyUpdate: v.optional(v.number()),
   }),
 
   // Available missions in the game
@@ -64,11 +67,39 @@ export default defineSchema({
       v.literal("agent_joined"),
       v.literal("mission_completed"),
       v.literal("crew_formed"),
-      v.literal("crew_joined")
+      v.literal("crew_joined"),
+      v.literal("dialogue"),
+      v.literal("event")
     ),
     agentId: v.optional(v.id("gameAgents")),
     agentName: v.optional(v.string()),
     message: v.string(),
     timestamp: v.number(),
+  }),
+
+  // Agent dialogue bubbles
+  gameDialogue: defineTable({
+    agentId: v.id("gameAgents"),
+    agentName: v.string(),
+    message: v.string(),
+    x: v.number(),
+    y: v.number(),
+    timestamp: v.number(),
+    expiresAt: v.number(),
+    context: v.optional(v.string()), // mission_complete, crew_interaction, etc.
+  }),
+
+  // Random events in the game world
+  gameEvents: defineTable({
+    type: v.string(),
+    title: v.string(),
+    description: v.string(),
+    x: v.optional(v.number()),
+    y: v.optional(v.number()),
+    radius: v.optional(v.number()),
+    isActive: v.boolean(),
+    startedAt: v.number(),
+    endsAt: v.number(),
+    data: v.optional(v.object({})), // additional event data
   }),
 });
