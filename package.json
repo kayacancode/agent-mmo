@@ -12,7 +12,6 @@
     "@pixi/react": "^8.0.5",
     "convex": "^1.31.7",
     "next": "16.1.6",
-    "pixi-viewport": "^6.0.3",
     "pixi.js": "^8.16.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
