@@ -40,18 +40,21 @@ export default function GameWorld({ className }: { className?: string }) {
 
   // Init Pixi
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || typeof window === 'undefined') return;
+    let destroyed = false;
     const app = new PIXI.Application();
     appRef.current = app;
 
     const init = async () => {
-      await app.init({
-        width: SCREEN_WIDTH,
-        height: SCREEN_HEIGHT,
-        backgroundColor: '#0a0a0a',
-        antialias: true,
-      });
-      canvasRef.current?.appendChild(app.canvas);
+      try {
+        await app.init({
+          width: SCREEN_WIDTH,
+          height: SCREEN_HEIGHT,
+          backgroundColor: '#0a0a0a',
+          antialias: true,
+        });
+        if (destroyed || !canvasRef.current) return;
+        canvasRef.current.appendChild(app.canvas);
 
       const world = new PIXI.Container();
       app.stage.addChild(world);
@@ -90,10 +93,14 @@ export default function GameWorld({ className }: { className?: string }) {
         e.preventDefault();
         setZoom(prev => Math.max(0.15, Math.min(2, prev + (e.deltaY > 0 ? -0.05 : 0.05))));
       }, { passive: false });
+      } catch (e) {
+        console.error('GameWorld init error:', e);
+      }
     };
     init();
 
     return () => {
+      destroyed = true;
       appRef.current?.destroy(true);
       appRef.current = null;
       worldContainerRef.current = null;
@@ -244,7 +251,7 @@ export default function GameWorld({ className }: { className?: string }) {
 
       // Agent body
       const ag = new PIXI.Graphics();
-      if ((agent as any).isInVehicle) {
+      if (agent.isInVehicle) {
         ag.roundRect(agent.x - 14, agent.y - 9, 28, 18, 4);
       } else {
         ag.circle(agent.x, agent.y, 12);
@@ -262,7 +269,7 @@ export default function GameWorld({ className }: { className?: string }) {
       }
 
       // Energy bar
-      const energy = (agent as any).energy ?? 100;
+      const energy = agent.energy ?? 100;
       const barW = 24;
       const barBg = new PIXI.Graphics();
       barBg.rect(agent.x - barW / 2, agent.y - 42, barW, 4);
@@ -275,7 +282,7 @@ export default function GameWorld({ className }: { className?: string }) {
       world.addChild(barFill);
 
       // Name + wanted stars
-      const wanted = (agent as any).wantedLevel ?? 0;
+      const wanted = agent.wantedLevel ?? 0;
       const stars = wanted > 0 ? ' ' + '⭐'.repeat(Math.min(wanted, 5)) : '';
       const nameText = new PIXI.Text({
         text: agent.name + stars,

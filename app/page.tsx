@@ -1,11 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import GameWorld from "../components/GameWorld";
 import Dashboard from "../components/Dashboard";
 import GameEngine from "../components/GameEngine";
+
+// Dynamic import GameWorld to prevent SSR issues with Pixi.js
+const GameWorld = dynamic(() => import("../components/GameWorld"), {
+  ssr: false,
+  loading: () => (
+    <div className="border border-zinc-700 rounded-lg overflow-hidden bg-zinc-900 flex items-center justify-center" style={{ width: '800px', height: '600px' }}>
+      <p className="text-zinc-400">Loading game world...</p>
+    </div>
+  ),
+});
 
 export default function Home() {
   const [gameInitialized, setGameInitialized] = useState(false);
@@ -38,16 +48,13 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // Auto-initialize on first load
     handleInitializeGame();
   }, []);
 
   return (
     <div className="min-h-screen bg-zinc-950">
-      {/* Game Engine - runs AI logic */}
       {gameInitialized && <GameEngine />}
       
-      {/* Header */}
       <div className="border-b border-zinc-700 p-4">
         <div className="flex justify-between items-center">
           <div>
@@ -55,36 +62,23 @@ export default function Home() {
             <p className="text-zinc-400">Grand Theft AI - Five Districts of Chaos</p>
           </div>
           <div className="flex space-x-2">
-            <button
-              onClick={handleInitializeGame}
-              disabled={isLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-            >
+            <button onClick={handleInitializeGame} disabled={isLoading} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">
               {isLoading ? "Loading..." : "Initialize Game"}
             </button>
-            <button
-              onClick={handleResetGame}
-              disabled={isLoading}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
-            >
+            <button onClick={handleResetGame} disabled={isLoading} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50">
               Reset Game
             </button>
           </div>
         </div>
       </div>
 
-      {/* Main Game Layout */}
       <div className="flex">
-        {/* Game World */}
         <div className="flex-1 p-4">
           <GameWorld className="mx-auto" />
         </div>
-        
-        {/* Dashboard */}
         <Dashboard />
       </div>
 
-      {/* Status Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-700 p-2 text-center">
         <p className="text-sm text-zinc-400">
           {gameInitialized ? "🟢 Game Active" : "🔴 Game Inactive"} | 

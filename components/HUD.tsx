@@ -23,25 +23,31 @@ export default function HUD({ selectedAgent, onAgentSelect, cameraX, cameraY, wo
   
   // Initialize minimap
   useEffect(() => {
-    if (!minimapRef.current) return;
+    if (!minimapRef.current || typeof window === 'undefined') return;
 
+    let destroyed = false;
     const app = new PIXI.Application();
-    minimapAppRef.current = app;
 
     const init = async () => {
-      await app.init({
-        width: 200,
-        height: 200,
-        backgroundColor: '#000000',
-        antialias: false,
-      });
-
-      minimapRef.current?.appendChild(app.canvas);
+      try {
+        await app.init({
+          width: 200,
+          height: 200,
+          backgroundColor: '#000000',
+          antialias: false,
+        });
+        if (destroyed || !minimapRef.current) return;
+        minimapRef.current.appendChild(app.canvas);
+        minimapAppRef.current = app;
+      } catch (e) {
+        console.error('Minimap init error:', e);
+      }
     };
 
     init();
 
     return () => {
+      destroyed = true;
       if (minimapAppRef.current) {
         minimapAppRef.current.destroy(true);
         minimapAppRef.current = null;
